@@ -9,8 +9,10 @@ Main cash register program
 Test inputs
 - Run main in Register.java
 Coupon IDs
+
 10off20
 - Simple coupon to use, $10 off $20 or more
+
 9999
 - Almost impossible coupon to use, $10 off $9999.99 or more
 
