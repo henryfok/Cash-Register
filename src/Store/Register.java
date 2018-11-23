@@ -14,13 +14,13 @@ public class Register {
     public static void main(String[] args) {
         // Create current store discounts
         Discount CerealDiscount = new Discount("Cereal", 2, 1);
-
+        Discount ChocolateBarDiscount = new Discount("Chocolate Bar", 1, 1);
         // Add current store discounts
         ds.addDiscount(CerealDiscount);
+        ds.addDiscount(ChocolateBarDiscount);
 
         // Create a coupon
         Coupon testCoupon = new Coupon("10off20", 19.99, 10);
-
         // Add coupon to current valid ones
         cs.addCoupon(testCoupon);
 
@@ -28,6 +28,8 @@ public class Register {
         gs.add(new Grocery("Apples", 2.49, 3, false, true));
         gs.add(new Grocery("Steak", 10.99, 2, false, true));
         gs.add(new Grocery("Cereal", 6.99, 7, true, false));
+        gs.add(new Grocery("Milk", 4.99, 1, true, false));
+        gs.add(new Grocery("Chocolate Bar", 3.99, 5, true, false));
 
         double subTotal = 0;
         double subTotalAndCoupon = 0;
@@ -59,11 +61,11 @@ public class Register {
             // Check Discount hashmap to see if there is a discount for the grocery item
             if(ds.hasDiscount(grocery.name)) {
                 System.out.println("> There is a discount for " + grocery.name);
-                System.out.println("> Subtotal for " + grocery.name + " before discount: " + subTotal);
+                System.out.println("> Subtotal for " + grocery.name + " before discount: " + twoDecPts.format(subTotal));
 
                 Discount discount = ds.getDiscount(grocery.name);
                 subTotal = applyDiscount(discount, grocery, subTotal);
-                System.out.println("Subtotal after discount: " + subTotal);
+                System.out.println("Subtotal after discount: " + twoDecPts.format(subTotal));
                 return subTotal;
             } else {
                 return subTotal;
@@ -100,14 +102,29 @@ public class Register {
     private static double applyCoupon(double subTotal) {
         Scanner userInput = new Scanner(System.in);
         String userCoupon;
-        System.out.print("Enter coupon id: ");
-        userCoupon = userInput.next();
+        boolean askedCoupon = false;
 
         // Check if the user-inputted coupon code matches any coupon ID in the Coupon hashset.
+        // If user input is blank (no coupon), return original subtotal.
+        do {
+            if (askedCoupon) {
+                System.out.print("That's not a valid coupon, try again: ");
+            } else {
+                System.out.print("Enter coupon id (Blank for no coupon): ");
+            }
+            userCoupon = userInput.nextLine();
+            if (userCoupon.isEmpty()) {
+                return subTotal;
+            }
+            askedCoupon = true;
+        } while (!(cs.validCoupon(userCoupon)));
+
+
         if (cs.validCoupon(userCoupon)) {
             System.out.println("That's a valid coupon");
             Coupon coupon = cs.getCoupon(userCoupon);
             System.out.println("Coupon: $" + coupon.discount + " off when you spend " + coupon.spentCondition + " or more");
+            // Check if subtotal meets coupon requirements
             if (subTotal > coupon.spentCondition) {
                 return (subTotal - coupon.discount);
             } else {
