@@ -11,6 +11,4 @@ public class Discount {
         this.numBought = numBought;
         this.numFree = numFree;
     }
-
-
 }

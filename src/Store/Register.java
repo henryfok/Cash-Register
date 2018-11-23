@@ -1,5 +1,7 @@
 package Store;
 
+import java.util.Scanner;
+
 public class Register {
     private static DiscountStore ds = new DiscountStore();
     private static CouponStore cs = new CouponStore();
@@ -16,14 +18,17 @@ public class Register {
         ds.addDiscount(testD);
         cs.addCoupon(testC);
 
-        addGrocery(testG);
+        double subTotal = addGrocery(testG);
+        double SubTotalAndCoupon = applyCoupon(subTotal);
+
+        System.out.println("Grand Total: $" + SubTotalAndCoupon);
     }
 
     private static void printGrocery(Grocery grocery) {
         System.out.println(grocery.units + " " + grocery.name + " at $" + grocery.price);
     }
 
-    private static void addGrocery(Grocery grocery) {
+    private static double addGrocery(Grocery grocery) {
         System.out.println("Adding " + grocery.name);
         double subTotal = 0;
         if (grocery.byItem) {
@@ -34,11 +39,13 @@ public class Register {
                 Discount discount = ds.getDiscount(grocery.name);
                 subTotal = applyDiscount(discount, grocery, subTotal);
                 System.out.println("subTotal: " + subTotal);
+                return subTotal;
+            } else {
+                return subTotal;
             }
-
-        }
-        if (grocery.byWeight) {
+        } else { //if (grocery.byWeight)
             subTotal = grocery.price * grocery.units;
+            return subTotal;
         }
     }
 
@@ -53,14 +60,30 @@ public class Register {
             System.out.println("num of free items: " + numFreeItems);
             System.out.println("$" + (numFreeItems * grocery.price) + " off");
             return (subTotal - (numFreeItems * grocery.price));
-        }
-        else {
+        } else {
             return subTotal;
         }
     }
 
-    private static void applyCoupon(Coupon coupon, double subTotal) {
-
+    private static double applyCoupon(double subTotal) {
+        Scanner userInput = new Scanner(System.in);
+        String userCoupon;
+        System.out.print("Enter coupon id: ");
+        userCoupon = userInput.next();
+        if (cs.validCoupon(userCoupon)) {
+            System.out.println("That's a valid coupon");
+            Coupon coupon = cs.getCoupon(userCoupon);
+            System.out.println("Coupon: $" + coupon.discount + " off when you spend " + coupon.spentCondition + " or more");
+            if (subTotal > coupon.spentCondition) {
+                return (subTotal - coupon.discount);
+            } else {
+                System.out.println("You have not met the coupon requirements!!");
+                return subTotal;
+            }
+        } else {
+            System.out.println("That's NOT a valid coupon");
+            return subTotal;
+        }
 
     }
 }

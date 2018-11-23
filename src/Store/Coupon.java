@@ -7,8 +7,7 @@ public class Coupon {
 
     public Coupon(String id, double spentCondition, double discount) {
         this.id = id;
-        this.spentCondition = discount;
+        this.spentCondition = spentCondition;
         this.discount = discount;
     }
-
 }
