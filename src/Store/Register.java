@@ -9,6 +9,7 @@ public class Register {
     private static DiscountStore ds = new DiscountStore();
     private static CouponStore cs = new CouponStore();
 
+    // Formatter to print commas for every 1000 and two leading zeros after decimal
     private static DecimalFormat twoDecPts = new DecimalFormat("#,##0.00");
 
     public static void main(String[] args) {
@@ -19,12 +20,18 @@ public class Register {
         ds.addDiscount(CerealDiscount);
         ds.addDiscount(ChocolateBarDiscount);
 
-        // Create a coupon
-        Coupon testCoupon = new Coupon("10off20", 19.99, 10);
-        // Add coupon to current valid ones
+        // Create coupons
+        Coupon testCoupon = new Coupon("10off20", 20, 10);
+        Coupon impossibleCoupon = new Coupon("9999", 9999.99, 10);
+        // Add coupons to current valid ones
         cs.addCoupon(testCoupon);
+        cs.addCoupon(impossibleCoupon);
 
         // Add groceries to ArrayList before calculating grand total.
+        // gs.add(new Grocery("Name", Price, Unit, byItem?, byWeight?));
+        // Price: Cost of item per unit
+        // Unit: Number of items / Amount (lb, kg, L, etc...) customer bought
+
         gs.add(new Grocery("Apples", 2.49, 3, false, true));
         gs.add(new Grocery("Steak", 10.99, 2, false, true));
         gs.add(new Grocery("Cereal", 6.99, 7, true, false));
@@ -35,8 +42,8 @@ public class Register {
         double subTotalAndCoupon = 0;
 
         for(Grocery grocery : gs) {
-            // printGrocery(grocery);
             subTotal += addGrocery(grocery);
+            System.out.println("Current subtotal: $" + twoDecPts.format(subTotal));
         }
 
         subTotalAndCoupon += applyCoupon(subTotal);
@@ -61,11 +68,11 @@ public class Register {
             // Check Discount hashmap to see if there is a discount for the grocery item
             if(ds.hasDiscount(grocery.name)) {
                 System.out.println("> There is a discount for " + grocery.name);
-                System.out.println("> Subtotal for " + grocery.name + " before discount: " + twoDecPts.format(subTotal));
+                System.out.println("> Subtotal for " + grocery.name + " before discount: $" + twoDecPts.format(subTotal));
 
                 Discount discount = ds.getDiscount(grocery.name);
                 subTotal = applyDiscount(discount, grocery, subTotal);
-                System.out.println("Subtotal after discount: " + twoDecPts.format(subTotal));
+                System.out.println("> Subtotal for " + grocery.name + " after discount: $" + twoDecPts.format(subTotal));
                 return subTotal;
             } else {
                 return subTotal;
@@ -91,7 +98,7 @@ public class Register {
             // But buying 6 applies the discount 2 times
             double numFreeItems = numOfDiscount * discount.numFree;
             System.out.println("> Num of free items: " + numFreeItems);
-            System.out.println("> $" + (numFreeItems * grocery.price) + " off");
+            System.out.println("> $" + twoDecPts.format(numFreeItems * grocery.price) + " off");
             return (subTotal - (numFreeItems * grocery.price));
         } else {
             // if there is a discount, but customer does not meet the requirements, just return original subTotal
@@ -123,9 +130,9 @@ public class Register {
         if (cs.validCoupon(userCoupon)) {
             System.out.println("That's a valid coupon");
             Coupon coupon = cs.getCoupon(userCoupon);
-            System.out.println("Coupon: $" + coupon.discount + " off when you spend " + coupon.spentCondition + " or more");
+            System.out.println("Coupon: $" + twoDecPts.format(coupon.discount) + " off when you spend $" + twoDecPts.format(coupon.spentCondition) + " or more");
             // Check if subtotal meets coupon requirements
-            if (subTotal > coupon.spentCondition) {
+            if (subTotal >= coupon.spentCondition) {
                 return (subTotal - coupon.discount);
             } else {
                 System.out.println("You have not met the coupon requirements!!");
