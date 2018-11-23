@@ -7,9 +7,7 @@ Main cash register program
   - Output status to console
 
 ### Test inputs
-- Run main in Register.java
-
-### Coupon IDs
+Coupon IDs
 
 10off20
 - Simple coupon to use, $10 off $20 or more
